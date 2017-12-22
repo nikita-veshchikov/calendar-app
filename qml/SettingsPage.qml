@@ -19,6 +19,7 @@
 import QtQuick 2.4
 import Ubuntu.Components 1.3
 import Qt.labs.settings 1.0
+import "CustomPickers"
 
 Page {
     id: settingsPage
@@ -26,7 +27,16 @@ Page {
 
     property EventListModel eventModel
     property Settings settings: undefined
-
+	
+	function openHourPicker (element, caller, callerProperty) {
+		element.highlighted = true;
+		var picker = NewPickerPanel.openDatePicker(caller, callerProperty, "Hours");
+		if (!picker) return;
+		picker.closed.connect(function () {
+		    element.highlighted = false;
+		});
+	}
+	
     Binding {
         target: settingsPage.settings
         property: "showWeekNumber"
@@ -40,7 +50,14 @@ Page {
         value: lunarCalCheckBox.checked
         when: settings
     }
-
+	
+	Binding {
+        target: settingsPage.settings
+        property: "workingHourStart"
+        value: workingHours.hourStart
+        when: settings
+    }
+	
     visible: false
 
     header: PageHeader {
@@ -90,7 +107,54 @@ Page {
                 }
             }
         }
+        
+        
+        // Working hours
+        ListItem {
+            id: workingHours
+            
+            property date hourStart: new Date();
+            property date hourEnd: new Date();
+            
+            
+            height: workingHourLayout.height + divider.height
+            ListItemLayout {
+                id: workingHourLayout
+                title.text: i18n.tr("Working hours")
+                
+                
+                NewEventEntryField{
+				    id: workingHourStartPicker
+				    objectName: "workingHourStartPicker"
 
+				    text: "From: " + settings? workingHours.hourStart.getDay(): "0" 
+				    width: parent.width / 8
+				    horizontalAlignment: Text.AlignRight
+
+				    MouseArea{
+				        anchors.fill: parent
+				        onClicked: openHourPicker(workingHourStartPicker, workingHours, "hourStart")
+				    }
+				}
+                
+                NewEventEntryField{
+				    id: workingHourEndPicker
+				    objectName: "workingHourEndPicker"
+
+				    text: "To: "+ settings? workingHours.hourEnd.getDay(): "0" 
+				    width: parent.width / 8
+				    horizontalAlignment: Text.AlignRight
+
+				    MouseArea{
+				        anchors.fill: parent
+				        onClicked: openHourPicker(workingHourEndPicker, workingHours, "hourEnd")
+				    }
+				}
+                
+            }
+        }
+		
+		//Reminder:
         ListItem {
             id: defaultReminderItem
 
