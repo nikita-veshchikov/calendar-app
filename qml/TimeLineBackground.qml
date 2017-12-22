@@ -20,14 +20,24 @@ import QtQuick 2.4
 import Ubuntu.Components 1.3
 
 Column {
+    id: dayColumn
+    property int workingHourStart: 8;
+    property int workingHourEnd: 17;
+    
     width: parent.width
     Repeater {
-        model: 24 // hour in a day
+        model: 24 // hours in a day
         delegate: Item {
             width: parent.width
             height: units.gu(8)
-
+			Rectangle {
+				width: parent.width
+				height: parent.height
+				border.width: 0
+				color: (index< workingHourStart | index>=workingHourEnd) ? "#efefef" : "#ffffff"
+			}
             SimpleDivider{}
         }
     }
+}
 }
